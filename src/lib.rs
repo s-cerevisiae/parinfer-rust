@@ -1,6 +1,6 @@
+mod changes;
 mod parinfer;
 mod types;
-mod changes;
 
 // Native-specific stuff
 

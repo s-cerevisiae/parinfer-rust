@@ -22,7 +22,8 @@ struct Case {
 impl Case {
     fn check2(&self, answer: serde_json::Value) {
         assert_eq!(
-            json!(self.result.success), answer["success"],
+            json!(self.result.success),
+            answer["success"],
             "case {}: success",
             self.source.line_no
         );
@@ -51,12 +52,14 @@ impl Case {
 
         if let Some(ref expected) = self.result.error {
             assert_eq!(
-                json!(expected.x), answer["error"]["x"],
+                json!(expected.x),
+                answer["error"]["x"],
                 "case {}: error.x",
                 self.source.line_no
             );
             assert_eq!(
-                json!(expected.line_no), answer["error"]["lineNo"],
+                json!(expected.line_no),
+                answer["error"]["lineNo"],
                 "case {}: error.line_no",
                 self.source.line_no
             );
@@ -75,24 +78,31 @@ impl Case {
                 "case {}: tab stop count",
                 self.source.line_no
             );
-            for (expected, actual) in tab_stops.iter().zip(answer["tabStops"].as_array().unwrap().iter()) {
+            for (expected, actual) in tab_stops
+                .iter()
+                .zip(answer["tabStops"].as_array().unwrap().iter())
+            {
                 assert_eq!(
-                    json!(expected.ch), actual["ch"],
+                    json!(expected.ch),
+                    actual["ch"],
                     "case {}: tab stop ch",
                     self.source.line_no
                 );
                 assert_eq!(
-                    json!(expected.x), actual["x"],
+                    json!(expected.x),
+                    actual["x"],
                     "case {}: tab stop x",
                     self.source.line_no
                 );
                 assert_eq!(
-                    json!(expected.line_no), actual["lineNo"],
+                    json!(expected.line_no),
+                    actual["lineNo"],
                     "case {}: tab stop line",
                     self.source.line_no
                 );
                 assert_eq!(
-                    json!(expected.arg_x), actual["argX"],
+                    json!(expected.arg_x),
+                    actual["argX"],
                     "case {}: tab stop arg_x",
                     self.source.line_no
                 );
@@ -106,7 +116,10 @@ impl Case {
                 "case {}: wrong number of paren trails",
                 self.source.line_no
             );
-            for (expected, actual) in trails.iter().zip(answer["parenTrails"].as_array().unwrap().iter()) {
+            for (expected, actual) in trails
+                .iter()
+                .zip(answer["parenTrails"].as_array().unwrap().iter())
+            {
                 assert_eq!(
                     expected.line_no, actual["lineNo"],
                     "case {}: paren trail line number",
@@ -149,7 +162,6 @@ struct Options {
     #[serde(skip_serializing_if = "Option::is_none")]
     janet_long_strings: Option<bool>,
 }
-
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -208,7 +220,11 @@ fn run(input: &str) -> String {
     unsafe {
         parinfer_rust::INITIALIZED = true;
         let c_input = CString::new(input).unwrap();
-        String::from(CStr::from_ptr(parinfer_rust::run_parinfer(c_input.as_ptr())).to_str().unwrap())
+        String::from(
+            CStr::from_ptr(parinfer_rust::run_parinfer(c_input.as_ptr()))
+                .to_str()
+                .unwrap(),
+        )
     }
 }
 
@@ -225,7 +241,8 @@ pub fn indent_mode() {
             "mode": "indent",
             "text": &case.text,
             "options": &case.options
-        }).to_string();
+        })
+        .to_string();
         let answer: serde_json::Value = serde_json::from_str(&run(&input)).unwrap();
         case.check2(answer);
     }
@@ -239,7 +256,8 @@ pub fn paren_mode() {
             "mode": "paren",
             "text": &case.text,
             "options": &case.options
-        }).to_string();
+        })
+        .to_string();
         let answer: serde_json::Value = serde_json::from_str(&run(&input)).unwrap();
         case.check2(answer);
     }
@@ -253,7 +271,8 @@ pub fn smart_mode() {
             "mode": "smart",
             "text": &case.text,
             "options": &case.options
-        }).to_string();
+        })
+        .to_string();
         let answer: serde_json::Value = serde_json::from_str(&run(&input)).unwrap();
         case.check2(answer);
     }
@@ -270,11 +289,9 @@ pub fn composed_unicode_graphemes_count_as_a_single_character() {
             cursor_x: None,
             cursor_line: None,
             tab_stops: None,
-            paren_trails: None
+            paren_trails: None,
         },
-        source: Source {
-            line_no: 0
-        },
+        source: Source { line_no: 0 },
         options: Options {
             cursor_x: None,
             cursor_line: None,
@@ -285,14 +302,15 @@ pub fn composed_unicode_graphemes_count_as_a_single_character() {
             scheme_sexp_comments: None,
             janet_long_strings: None,
             prev_cursor_x: None,
-            prev_cursor_line: None
-        }
+            prev_cursor_line: None,
+        },
     };
     let input = json!({
         "mode": "paren",
         "text": &case.text,
         "options": &case.options
-    }).to_string();
+    })
+    .to_string();
     let answer: serde_json::Value = serde_json::from_str(&run(&input)).unwrap();
     case.check2(answer);
 }
@@ -308,36 +326,33 @@ pub fn graphemes_in_changes_are_counted_correctly() {
             cursor_x: Some(10),
             cursor_line: Some(1),
             tab_stops: None,
-            paren_trails: None
+            paren_trails: None,
         },
-        source: Source {
-            line_no: 0
-        },
+        source: Source { line_no: 0 },
         options: Options {
             cursor_x: Some(7),
             cursor_line: Some(1),
-            changes: Some(vec![
-                Change {
-                    line_no: 0,
-                    x: 2,
-                    old_text: String::from("éé"),
-                    new_text: String::from("xyååå"),
-                }
-            ]),
+            changes: Some(vec![Change {
+                line_no: 0,
+                x: 2,
+                old_text: String::from("éé"),
+                new_text: String::from("xyååå"),
+            }]),
             lisp_vline_symbols: None,
             lisp_block_comments: None,
             guile_block_comments: None,
             scheme_sexp_comments: None,
             janet_long_strings: None,
             prev_cursor_x: None,
-            prev_cursor_line: None
-        }
+            prev_cursor_line: None,
+        },
     };
     let input = json!({
         "mode": "smart",
         "text": &case.text,
         "options": &case.options
-    }).to_string();
+    })
+    .to_string();
     let answer: serde_json::Value = serde_json::from_str(&run(&input)).unwrap();
     case.check2(answer);
 }
@@ -353,36 +368,33 @@ pub fn wide_characters() {
             cursor_x: Some(17),
             cursor_line: Some(1),
             tab_stops: None,
-            paren_trails: None
+            paren_trails: None,
         },
-        source: Source {
-            line_no: 0
-        },
+        source: Source { line_no: 0 },
         options: Options {
             cursor_x: Some(12),
             cursor_line: Some(1),
-            changes: Some(vec![
-                Change {
-                    line_no: 0,
-                    x: 5,
-                    old_text: String::from("world"),
-                    new_text: String::from("ｗｏｒｌｄ"),
-                }
-            ]),
+            changes: Some(vec![Change {
+                line_no: 0,
+                x: 5,
+                old_text: String::from("world"),
+                new_text: String::from("ｗｏｒｌｄ"),
+            }]),
             lisp_vline_symbols: None,
             lisp_block_comments: None,
             guile_block_comments: None,
             scheme_sexp_comments: None,
             janet_long_strings: None,
             prev_cursor_x: None,
-            prev_cursor_line: None
-        }
+            prev_cursor_line: None,
+        },
     };
     let input = json!({
         "mode": "smart",
         "text": &case.text,
         "options": &case.options
-    }).to_string();
+    })
+    .to_string();
     let answer: serde_json::Value = serde_json::from_str(&run(&input)).unwrap();
     case.check2(answer);
 }
@@ -398,11 +410,9 @@ pub fn lisp_vline_symbols() {
             cursor_x: None,
             cursor_line: None,
             tab_stops: None,
-            paren_trails: None
+            paren_trails: None,
         },
-        source: Source {
-            line_no: 0
-        },
+        source: Source { line_no: 0 },
         options: Options {
             cursor_x: None,
             cursor_line: None,
@@ -413,14 +423,15 @@ pub fn lisp_vline_symbols() {
             scheme_sexp_comments: None,
             janet_long_strings: None,
             prev_cursor_x: None,
-            prev_cursor_line: None
-        }
+            prev_cursor_line: None,
+        },
     };
     let input = json!({
         "mode": "paren",
         "text": &case.text,
         "options": &case.options
-    }).to_string();
+    })
+    .to_string();
     let answer: serde_json::Value = serde_json::from_str(&run(&input)).unwrap();
     case.check2(answer);
 }
@@ -436,11 +447,9 @@ pub fn lisp_sharp_syntax_backtrack() {
             cursor_x: None,
             cursor_line: None,
             tab_stops: None,
-            paren_trails: None
+            paren_trails: None,
         },
-        source: Source {
-            line_no: 0
-        },
+        source: Source { line_no: 0 },
         options: Options {
             cursor_x: None,
             cursor_line: None,
@@ -451,14 +460,15 @@ pub fn lisp_sharp_syntax_backtrack() {
             scheme_sexp_comments: None,
             janet_long_strings: None,
             prev_cursor_x: None,
-            prev_cursor_line: None
-        }
+            prev_cursor_line: None,
+        },
     };
     let input = json!({
         "mode": "paren",
         "text": &case.text,
         "options": &case.options
-    }).to_string();
+    })
+    .to_string();
     let answer: serde_json::Value = serde_json::from_str(&run(&input)).unwrap();
     case.check2(answer);
 }
@@ -474,11 +484,9 @@ pub fn lisp_block_comments() {
             cursor_x: None,
             cursor_line: None,
             tab_stops: None,
-            paren_trails: None
+            paren_trails: None,
         },
-        source: Source {
-            line_no: 0
-        },
+        source: Source { line_no: 0 },
         options: Options {
             cursor_x: None,
             cursor_line: None,
@@ -489,14 +497,15 @@ pub fn lisp_block_comments() {
             scheme_sexp_comments: None,
             janet_long_strings: None,
             prev_cursor_x: None,
-            prev_cursor_line: None
-        }
+            prev_cursor_line: None,
+        },
     };
     let input = json!({
         "mode": "paren",
         "text": &case.text,
         "options": &case.options
-    }).to_string();
+    })
+    .to_string();
     let answer: serde_json::Value = serde_json::from_str(&run(&input)).unwrap();
     case.check2(answer);
 }
@@ -512,11 +521,9 @@ pub fn guile_block_comments() {
             cursor_x: None,
             cursor_line: None,
             tab_stops: None,
-            paren_trails: None
+            paren_trails: None,
         },
-        source: Source {
-            line_no: 0
-        },
+        source: Source { line_no: 0 },
         options: Options {
             cursor_x: None,
             cursor_line: None,
@@ -527,14 +534,15 @@ pub fn guile_block_comments() {
             scheme_sexp_comments: None,
             janet_long_strings: None,
             prev_cursor_x: None,
-            prev_cursor_line: None
-        }
+            prev_cursor_line: None,
+        },
     };
     let input = json!({
         "mode": "indent",
         "text": &case.text,
         "options": &case.options
-    }).to_string();
+    })
+    .to_string();
     let answer: serde_json::Value = serde_json::from_str(&run(&input)).unwrap();
     case.check2(answer);
 }
@@ -550,11 +558,9 @@ pub fn scheme_sexp_comments() {
             cursor_x: None,
             cursor_line: None,
             tab_stops: None,
-            paren_trails: None
+            paren_trails: None,
         },
-        source: Source {
-            line_no: 0
-        },
+        source: Source { line_no: 0 },
         options: Options {
             cursor_x: None,
             cursor_line: None,
@@ -565,14 +571,15 @@ pub fn scheme_sexp_comments() {
             scheme_sexp_comments: Some(true),
             janet_long_strings: None,
             prev_cursor_x: None,
-            prev_cursor_line: None
-        }
+            prev_cursor_line: None,
+        },
     };
     let input = json!({
         "mode": "indent",
         "text": &case.text,
         "options": &case.options
-    }).to_string();
+    })
+    .to_string();
     let answer: serde_json::Value = serde_json::from_str(&run(&input)).unwrap();
     case.check2(answer);
 }
@@ -588,11 +595,9 @@ pub fn janet_long_strings() {
             cursor_x: None,
             cursor_line: None,
             tab_stops: None,
-            paren_trails: None
+            paren_trails: None,
         },
-        source: Source {
-            line_no: 0
-        },
+        source: Source { line_no: 0 },
         options: Options {
             cursor_x: None,
             cursor_line: None,
@@ -603,14 +608,15 @@ pub fn janet_long_strings() {
             scheme_sexp_comments: None,
             janet_long_strings: Some(true),
             prev_cursor_x: None,
-            prev_cursor_line: None
-        }
+            prev_cursor_line: None,
+        },
     };
     let input = json!({
         "mode": "paren",
         "text": &case.text,
         "options": &case.options
-    }).to_string();
+    })
+    .to_string();
     let answer: serde_json::Value = serde_json::from_str(&run(&input)).unwrap();
     case.check2(answer);
 }

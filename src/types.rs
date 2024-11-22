@@ -1,7 +1,9 @@
 use serde_derive::{Deserialize, Serialize};
-use std::{fmt::{self, Display},
-          mem,
-          rc::Rc};
+use std::{
+    fmt::{self, Display},
+    mem,
+    rc::Rc,
+};
 
 pub type LineNumber = usize;
 pub type Column = usize;
@@ -74,7 +76,7 @@ pub struct Request {
     pub options: Options,
 }
 
-#[derive(Clone,Serialize,Debug)]
+#[derive(Clone, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TabStop<'a> {
     pub ch: &'a str,
@@ -83,7 +85,7 @@ pub struct TabStop<'a> {
     pub arg_x: Option<Column>,
 }
 
-#[derive(Clone,Debug,Serialize)]
+#[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParenTrail {
     pub line_no: LineNumber,
@@ -96,10 +98,10 @@ pub struct Closer<'a> {
     pub line_no: LineNumber,
     pub x: Column,
     pub ch: &'a str,
-    pub trail: Option<ParenTrail>
+    pub trail: Option<ParenTrail>,
 }
 
-#[derive(Clone,Debug,Serialize)]
+#[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Paren<'a> {
     pub line_no: LineNumber,
@@ -114,7 +116,7 @@ pub struct Paren<'a> {
     #[serde(skip)]
     pub closer: Option<Closer<'a>>,
     #[serde(skip)]
-    pub children: Vec<Paren<'a>>
+    pub children: Vec<Paren<'a>>,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -145,8 +147,7 @@ impl<'a> From<Error> for Answer<'a> {
     }
 }
 
-#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
-#[derive(Default)]
+#[derive(PartialEq, Eq, Hash, Clone, Copy, Debug, Default)]
 pub enum ErrorName {
     QuoteDanger,
     EolBackslash,
@@ -163,7 +164,6 @@ pub enum ErrorName {
     #[default]
     Restart,
 }
-
 
 impl Display for ErrorName {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -186,7 +186,8 @@ impl Display for ErrorName {
 
 impl serde::Serialize for ErrorName {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where S: serde::Serializer
+    where
+        S: serde::Serializer,
     {
         serializer.serialize_str(&self.to_string())
     }
@@ -194,32 +195,34 @@ impl serde::Serialize for ErrorName {
 
 impl<'a> serde::Deserialize<'a> for ErrorName {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where D: serde::Deserializer<'a>
+    where
+        D: serde::Deserializer<'a>,
     {
         struct Visitor;
 
         impl<'de> serde::de::Visitor<'de> for Visitor {
             type Value = ErrorName;
 
-            fn expecting(&self,  formatter: &mut fmt::Formatter) -> fmt::Result {
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str("error name")
             }
 
             fn visit_str<E>(self, value: &str) -> Result<ErrorName, E>
-            where E: serde::de::Error
+            where
+                E: serde::de::Error,
             {
                 match value {
                     "quote-danger" => Ok(ErrorName::QuoteDanger),
-                     "eol-backslash" => Ok(ErrorName::EolBackslash),
-                     "unclosed-quote" => Ok(ErrorName::UnclosedQuote),
-                     "unclosed-paren" => Ok(ErrorName::UnclosedParen),
-                     "unmatched-close-paren" => Ok(ErrorName::UnmatchedCloseParen),
-                     "unmatched-open-paren" => Ok(ErrorName::UnmatchedOpenParen),
-                     "leading-close-paren" => Ok(ErrorName::LeadingCloseParen),
-                     "utf8-error" => Ok(ErrorName::Utf8EncodingError),
-                     "json-error" => Ok(ErrorName::JsonEncodingError),
-                     "panic" => Ok(ErrorName::Panic),
-                    _ => Err(E::custom(format!("unknown error name: {}", value)))
+                    "eol-backslash" => Ok(ErrorName::EolBackslash),
+                    "unclosed-quote" => Ok(ErrorName::UnclosedQuote),
+                    "unclosed-paren" => Ok(ErrorName::UnclosedParen),
+                    "unmatched-close-paren" => Ok(ErrorName::UnmatchedCloseParen),
+                    "unmatched-open-paren" => Ok(ErrorName::UnmatchedOpenParen),
+                    "leading-close-paren" => Ok(ErrorName::LeadingCloseParen),
+                    "utf8-error" => Ok(ErrorName::Utf8EncodingError),
+                    "json-error" => Ok(ErrorName::JsonEncodingError),
+                    "panic" => Ok(ErrorName::Panic),
+                    _ => Err(E::custom(format!("unknown error name: {}", value))),
                 }
             }
         }
@@ -278,11 +281,10 @@ const ANSWER_LEN: usize = mem::size_of::<Answer>() / 8;
 pub type RawAnswer = [u64; ANSWER_LEN];
 
 #[allow(dead_code)]
-pub struct WrappedAnswer{
-  request: SharedRequest,
-  raw: RawAnswer
+pub struct WrappedAnswer {
+    request: SharedRequest,
+    raw: RawAnswer,
 }
-
 
 impl WrappedAnswer {
     #[inline]
