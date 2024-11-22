@@ -22,50 +22,36 @@ mod reference_hack {
 
     pub static mut INITIALIZED: bool = false;
 
-    #[cfg(any(target_os = "netbsd", target_os = "openbsd"))]
-    mod netbsdlike {
-        use libc::{RTLD_GLOBAL, RTLD_LAZY};
+    cfg_if::cfg_if! {
+        if #[cfg(any(target_os = "netbsd", target_os = "openbsd"))] {
+            use libc::{RTLD_GLOBAL, RTLD_LAZY};
 
-        pub fn first_attempt_flags() -> i32 {
-            RTLD_LAZY | RTLD_GLOBAL
-        }
-        pub fn second_attempt_flags() -> i32 {
-            RTLD_LAZY | RTLD_GLOBAL
-        }
-    }
+            pub fn first_attempt_flags() -> i32 {
+                RTLD_LAZY | RTLD_GLOBAL
+            }
+            pub fn second_attempt_flags() -> i32 {
+                RTLD_LAZY | RTLD_GLOBAL
+            }
+        } else if #[cfg(target_os = "android")] {
+            use libc::{RTLD_GLOBAL, RTLD_LAZY, RTLD_NOLOAD};
 
-    #[cfg(any(target_os = "netbsd", target_os = "openbsd"))]
-    use self::netbsdlike::*;
+            pub fn first_attempt_flags() -> i32 {
+                RTLD_LAZY | RTLD_NOLOAD | RTLD_GLOBAL
+            }
+            pub fn second_attempt_flags() -> i32 {
+                RTLD_LAZY | RTLD_GLOBAL
+            }
+        } else {
+            use libc::{RTLD_GLOBAL, RTLD_LAZY, RTLD_NODELETE, RTLD_NOLOAD};
 
-    #[cfg(target_os = "android")]
-    mod android {
-        use libc::{RTLD_GLOBAL, RTLD_LAZY, RTLD_NOLOAD};
-
-        pub fn first_attempt_flags() -> i32 {
-            RTLD_LAZY | RTLD_NOLOAD | RTLD_GLOBAL
-        }
-        pub fn second_attempt_flags() -> i32 {
-            RTLD_LAZY | RTLD_GLOBAL
-        }
-    }
-
-    #[cfg(target_os = "android")]
-    use android::*;
-
-    #[cfg(not(any(target_os = "netbsd", target_os = "openbsd", target_os = "android")))]
-    mod default {
-        use libc::{RTLD_GLOBAL, RTLD_LAZY, RTLD_NODELETE, RTLD_NOLOAD};
-
-        pub fn first_attempt_flags() -> i32 {
-            RTLD_LAZY | RTLD_NOLOAD | RTLD_GLOBAL | RTLD_NODELETE
-        }
-        pub fn second_attempt_flags() -> i32 {
-            RTLD_LAZY | RTLD_GLOBAL | RTLD_NODELETE
+            pub fn first_attempt_flags() -> i32 {
+                RTLD_LAZY | RTLD_NOLOAD | RTLD_GLOBAL | RTLD_NODELETE
+            }
+            pub fn second_attempt_flags() -> i32 {
+                RTLD_LAZY | RTLD_GLOBAL | RTLD_NODELETE
+            }
         }
     }
-
-    #[cfg(not(any(target_os = "netbsd", target_os = "openbsd", target_os = "android")))]
-    use self::default::*;
 
     pub unsafe fn initialize() {
         if INITIALIZED {
