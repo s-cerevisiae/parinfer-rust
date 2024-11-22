@@ -11,6 +11,10 @@ crate-type = ["lib", "cdylib"]
 name = "parinfer-rust"
 path =  "src/main.rs"
 
+[[bench]]
+name = "perf"
+harness = false
+
 [dependencies]
 getopts = "0.2"
 libc = "0.2.39"
@@ -26,4 +30,7 @@ stdweb = "0.4.4"
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3.6", features = ["libloaderapi"] }
+
+[dev-dependencies]
+criterion = "0.5.1"
 
