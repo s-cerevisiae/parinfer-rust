@@ -13,7 +13,7 @@ use super::*;
 /// Here we reference ourselves and throw the handle away to prevent
 /// ourselves from being unloaded (and also set RTLD_NODELETE and
 /// RTLD_GLOBAL to make extra sure).
-#[cfg(all(unix))]
+#[cfg(unix)]
 mod reference_hack {
     use std::ptr;
     use std::ffi::CStr;
@@ -65,11 +65,11 @@ mod reference_hack {
         // Mac).  dlerror() is unhelfully NULL at that point, so try to
         // *really* load ourselves, then report if that fails.
         let handle = dlopen(info.dli_fname, first_attempt_flags());
-        if handle == ptr::null_mut() {
+        if handle.is_null() {
             let handle = dlopen(info.dli_fname, second_attempt_flags());
-            if handle == ptr::null_mut() {
+            if handle.is_null() {
                 let error = dlerror();
-                if error == ptr::null_mut() {
+                if error.is_null() {
                     panic!("Could not reference parinfer_rust library {:?}.",
                            CStr::from_ptr(info.dli_fname));
                 } else {
@@ -86,9 +86,9 @@ mod reference_hack {
 #[cfg(windows)]
 mod reference_hack {
     use std::ptr;
-    use std::ffi::{OsString};
-    use std::os::windows::ffi::{OsStringExt};
-    use winapi::um::winnt::{LPCWSTR};
+    use std::ffi::OsString;
+    use std::os::windows::ffi::OsStringExt;
+    use winapi::um::winnt::LPCWSTR;
     use winapi::um::libloaderapi::{ GET_MODULE_HANDLE_EX_FLAG_PIN,
                                     GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
                                     GetModuleHandleExW, GetModuleFileNameW};

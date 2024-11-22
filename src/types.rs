@@ -1,5 +1,5 @@
 use serde_derive::{Deserialize, Serialize};
-use std::{fmt,
+use std::{fmt::{self, Display},
           mem,
           rc::Rc};
 
@@ -165,9 +165,9 @@ pub enum ErrorName {
 }
 
 
-impl ToString for ErrorName {
-    fn to_string(&self) -> String {
-        String::from(match *self {
+impl Display for ErrorName {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match *self {
             ErrorName::QuoteDanger => "quote-danger",
             ErrorName::EolBackslash => "eol-backslash",
             ErrorName::UnclosedQuote => "unclosed-quote",
@@ -179,7 +179,8 @@ impl ToString for ErrorName {
             ErrorName::JsonEncodingError => "json-error",
             ErrorName::Panic => "panic",
             _ => "??",
-        })
+        };
+        write!(f, "{s}")
     }
 }
 

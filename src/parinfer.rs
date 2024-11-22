@@ -90,7 +90,7 @@ fn transform_change<'a>(change: &'a Change) -> TransformedChange {
     }
 }
 
-fn transform_changes<'a>(
+fn transform_changes(
     changes: &Vec<Change>,
 ) -> HashMap<(LineNumber, Column), TransformedChange> {
     let mut lines: HashMap<(LineNumber, Column), TransformedChange> = HashMap::new();
@@ -147,10 +147,10 @@ enum Now {
 
 impl<'a> State<'a> {
     fn is_escaping(&self) -> bool {
-        match self.escape { Now::Escaping => true, _ => false }
+        matches!(self.escape, Now::Escaping)
     }
     fn is_escaped(&self) -> bool {
-        match self.escape { Now::Escaped => true, _ => false }
+        matches!(self.escape, Now::Escaped)
     }
 }
 
@@ -171,27 +171,13 @@ enum In<'a> {
 
 impl<'a> State<'a> {
     fn is_in_code(&self) -> bool {
-        match self.context {
-            In::Code => true,
-            In::LispReaderSyntax => true,
-            _ => false
-        }
+        matches!(self.context, In::Code | In::LispReaderSyntax)
     }
     fn is_in_comment(&self) -> bool {
-        match self.context { In::Comment => true, _ => false }
+        matches!(self.context, In::Comment)
     }
     fn is_in_stringish(&self) -> bool {
-        match self.context {
-            In::String {..} => true,
-            In::LispBlockCommentPre {..} => true,
-            In::LispBlockComment {..} => true,
-            In::LispBlockCommentPost {..} => true,
-            In::GuileBlockComment => true,
-            In::GuileBlockCommentPost => true,
-            In::JanetLongStringPre {..} => true,
-            In::JanetLongString {..} => true,
-            _ => false
-        }
+        matches!(self.context, In::String {..} | In::LispBlockCommentPre {..} | In::LispBlockComment {..} | In::LispBlockCommentPost {..} | In::GuileBlockComment | In::GuileBlockCommentPost | In::JanetLongStringPre {..} | In::JanetLongString {..})
     }
 }
 
@@ -301,7 +287,7 @@ fn get_initial_result<'a>(
         input_x: 0,
 
         lines: vec![],
-        line_no: usize::max_value(),
+        line_no: usize::MAX,
         ch: &text[0..0],
         x: 0,
         indent_x: None,
@@ -604,7 +590,7 @@ fn clamp_works() {
     assert_eq!(clamp(1, None, None), 1);
 }
 
-fn peek<T>(array: &Vec<T>, i: usize) -> Option<&T> {
+fn peek<T>(array: &[T], i: usize) -> Option<&T> {
     if i >= array.len() {
         None
     } else {
@@ -615,11 +601,11 @@ fn peek<T>(array: &Vec<T>, i: usize) -> Option<&T> {
 #[cfg(test)]
 #[test]
 fn peek_works() {
-    assert_eq!(peek(&vec!['a'], 0), Some(&'a'));
-    assert_eq!(peek(&vec!['a'], 1), None);
-    assert_eq!(peek(&vec!['a', 'b', 'c'], 0), Some(&'c'));
-    assert_eq!(peek(&vec!['a', 'b', 'c'], 1), Some(&'b'));
-    assert_eq!(peek(&vec!['a', 'b', 'c'], 5), None);
+    assert_eq!(peek(&['a'], 0), Some(&'a'));
+    assert_eq!(peek(&['a'], 1), None);
+    assert_eq!(peek(&['a', 'b', 'c'], 0), Some(&'c'));
+    assert_eq!(peek(&['a', 'b', 'c'], 1), Some(&'b'));
+    assert_eq!(peek(&['a', 'b', 'c'], 5), None);
     let empty: Vec<char> = vec![];
     assert_eq!(peek(&empty, 0), None);
     assert_eq!(peek(&empty, 1), None);
@@ -628,13 +614,10 @@ fn peek_works() {
 // {{{1 Questions about characters
 
 fn is_close_paren(paren: &str) -> bool {
-    match paren {
-        "}" | "]" | ")" => true,
-        _ => false,
-    }
+    matches!(paren, "}" | "]" | ")")
 }
 
-fn is_valid_close_paren<'a>(paren_stack: &Vec<Paren<'a>>, ch: &'a str) -> bool {
+fn is_valid_close_paren<'a>(paren_stack: &[Paren<'a>], ch: &'a str) -> bool {
     if paren_stack.is_empty() {
         return false;
     }
@@ -1053,7 +1036,7 @@ fn on_char(result: &mut State<'_>) -> Result<()> {
 
 // {{{1 Cursor functions
 
-fn is_cursor_left_of<'a>(
+fn is_cursor_left_of(
     cursor_x: Option<Column>,
     cursor_line: Option<LineNumber>,
     x: Option<Column>,
@@ -1066,7 +1049,7 @@ fn is_cursor_left_of<'a>(
     }
 }
 
-fn is_cursor_right_of<'a>(
+fn is_cursor_right_of(
     cursor_x: Option<Column>,
     cursor_line: Option<LineNumber>,
     x: Option<Column>,
