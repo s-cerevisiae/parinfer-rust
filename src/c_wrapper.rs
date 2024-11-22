@@ -37,7 +37,27 @@ mod reference_hack {
     #[cfg(any(target_os = "netbsd", target_os = "openbsd", target_os = "bitrig"))]
     use self::netbsdlike::*;
 
-    #[cfg(not(any(target_os = "netbsd", target_os = "openbsd", target_os = "bitrig")))]
+    #[cfg(target_os = "android")]
+    mod android {
+        use libc::{RTLD_GLOBAL, RTLD_LAZY, RTLD_NOLOAD};
+
+        pub fn first_attempt_flags() -> i32 {
+            RTLD_LAZY | RTLD_NOLOAD | RTLD_GLOBAL
+        }
+        pub fn second_attempt_flags() -> i32 {
+            RTLD_LAZY | RTLD_GLOBAL
+        }
+    }
+
+    #[cfg(target_os = "android")]
+    use android::*;
+
+    #[cfg(not(any(
+        target_os = "netbsd",
+        target_os = "openbsd",
+        target_os = "android",
+        target_os = "bitrig"
+    )))]
     mod default {
         use libc::{RTLD_GLOBAL, RTLD_LAZY, RTLD_NODELETE, RTLD_NOLOAD};
 
@@ -49,7 +69,12 @@ mod reference_hack {
         }
     }
 
-    #[cfg(not(any(target_os = "netbsd", target_os = "openbsd", target_os = "bitrig")))]
+    #[cfg(not(any(
+        target_os = "netbsd",
+        target_os = "openbsd",
+        target_os = "android",
+        target_os = "bitrig"
+    )))]
     use self::default::*;
 
     pub unsafe fn initialize() {
