@@ -146,6 +146,7 @@ impl<'a> From<Error> for Answer<'a> {
 }
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
+#[derive(Default)]
 pub enum ErrorName {
     QuoteDanger,
     EolBackslash,
@@ -159,28 +160,24 @@ pub enum ErrorName {
     JsonEncodingError,
     Panic,
 
+    #[default]
     Restart,
 }
 
-impl Default for ErrorName {
-    fn default() -> ErrorName {
-        ErrorName::Restart
-    }
-}
 
 impl ToString for ErrorName {
     fn to_string(&self) -> String {
-        String::from(match self {
-            &ErrorName::QuoteDanger => "quote-danger",
-            &ErrorName::EolBackslash => "eol-backslash",
-            &ErrorName::UnclosedQuote => "unclosed-quote",
-            &ErrorName::UnclosedParen => "unclosed-paren",
-            &ErrorName::UnmatchedCloseParen => "unmatched-close-paren",
-            &ErrorName::UnmatchedOpenParen => "unmatched-open-paren",
-            &ErrorName::LeadingCloseParen => "leading-close-paren",
-            &ErrorName::Utf8EncodingError => "utf8-error",
-            &ErrorName::JsonEncodingError => "json-error",
-            &ErrorName::Panic => "panic",
+        String::from(match *self {
+            ErrorName::QuoteDanger => "quote-danger",
+            ErrorName::EolBackslash => "eol-backslash",
+            ErrorName::UnclosedQuote => "unclosed-quote",
+            ErrorName::UnclosedParen => "unclosed-paren",
+            ErrorName::UnmatchedCloseParen => "unmatched-close-paren",
+            ErrorName::UnmatchedOpenParen => "unmatched-open-paren",
+            ErrorName::LeadingCloseParen => "leading-close-paren",
+            ErrorName::Utf8EncodingError => "utf8-error",
+            ErrorName::JsonEncodingError => "json-error",
+            ErrorName::Panic => "panic",
             _ => "??",
         })
     }

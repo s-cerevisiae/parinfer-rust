@@ -66,7 +66,7 @@ pub fn fixes<'a>(from: &'a str, to: &'a str) -> Fixes {
     for (a_line, b_line) in from.split('\n').map(chomp_cr).zip(to.split('\n').map(chomp_cr)) {
         if a_line != b_line {
             result.deletions.push(Selection::new(line, 1, line, a_line.chars().count()));
-            if b_line != "" {
+            if !b_line.is_empty() {
                 result.insertions.push(Insertion::new(line, 1, b_line));
             }
         }
@@ -151,7 +151,7 @@ pub fn kakoune_output(request: &Request, answer: Answer) -> (String, i32) {
     if answer.success {
         let fixes = fixes(&request.text, &answer.text);
         let script = format!("{}\n{}\n{}", delete_script(&fixes), insert_script(&fixes),
-                             cursor_script(&request, &answer));
+                             cursor_script(request, &answer));
 
         ( script, 0 )
     } else {

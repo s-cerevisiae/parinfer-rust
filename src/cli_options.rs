@@ -1,8 +1,6 @@
-use getopts;
 use std::env;
 use std::io;
 use std::io::Read;
-use serde_json;
 use crate::types::{self, *};
 
 pub enum InputType {
@@ -266,7 +264,7 @@ impl Options {
                         prev_cursor_line: None,
                         force_balance: false,
                         return_parens: false,
-                        comment_char: char::from(self.comment_char()),
+                        comment_char: self.comment_char(),
                         string_delimiters: self.string_delimiters(),
                         partial_result: false,
                         selection_start_line: None,
@@ -307,7 +305,7 @@ impl Options {
                             .ok(),
                         force_balance: false,
                         return_parens: false,
-                        comment_char: char::from(self.comment_char()),
+                        comment_char: self.comment_char(),
                         string_delimiters: self.string_delimiters(),
                         partial_result: false,
                         selection_start_line: None,
@@ -351,27 +349,27 @@ mod tests {
         let scheme = for_args(&["--language=scheme"]);
         let janet = for_args(&["--language=janet"]);
 
-        assert_eq!(clojure.options.lisp_vline_symbols, false);
-        assert_eq!(scheme.options.lisp_vline_symbols, true);
+        assert!(!clojure.options.lisp_vline_symbols);
+        assert!(scheme.options.lisp_vline_symbols);
 
-        assert_eq!(clojure.options.janet_long_strings, false);
-        assert_eq!(scheme.options.janet_long_strings, false);
-        assert_eq!(janet.options.janet_long_strings, true);
+        assert!(!clojure.options.janet_long_strings);
+        assert!(!scheme.options.janet_long_strings);
+        assert!(janet.options.janet_long_strings);
     }
 
     #[test]
     fn lisp_vline_symbols() {
-        assert_eq!(for_args(&[]).options.lisp_vline_symbols, false);
-        assert_eq!(for_args(&["--language=lisp"]).options.lisp_vline_symbols, true);
-        assert_eq!(for_args(&["--lisp-vline-symbols"]).options.lisp_vline_symbols, true);
-        assert_eq!(for_args(&["--language=lisp", "--no-lisp-vline-symbols"]).options.lisp_vline_symbols, false);
+        assert!(!for_args(&[]).options.lisp_vline_symbols);
+        assert!(for_args(&["--language=lisp"]).options.lisp_vline_symbols);
+        assert!(for_args(&["--lisp-vline-symbols"]).options.lisp_vline_symbols);
+        assert!(!for_args(&["--language=lisp", "--no-lisp-vline-symbols"]).options.lisp_vline_symbols);
     }
 
     #[test]
     fn lisp_block_comments() {
-        assert_eq!(for_args(&[]).options.lisp_block_comments, false);
-        assert_eq!(for_args(&["--language=lisp"]).options.lisp_block_comments, true);
-        assert_eq!(for_args(&["--lisp-block-comments"]).options.lisp_block_comments, true);
-        assert_eq!(for_args(&["--language=lisp", "--no-lisp-block-comments"]).options.lisp_block_comments, false);
+        assert!(!for_args(&[]).options.lisp_block_comments);
+        assert!(for_args(&["--language=lisp"]).options.lisp_block_comments);
+        assert!(for_args(&["--lisp-block-comments"]).options.lisp_block_comments);
+        assert!(!for_args(&["--language=lisp", "--no-lisp-block-comments"]).options.lisp_block_comments);
     }
 }

@@ -138,7 +138,7 @@ unsafe fn unwrap_c_pointers(json: *const c_char) -> Result<CString, Error> {
     Ok(CString::new(response)?)
 }
 
-thread_local!(static BUFFER: RefCell<Option<CString>> = RefCell::new(None));
+thread_local!(static BUFFER: RefCell<Option<CString>> = const { RefCell::new(None) });
 
 #[cfg(not(target_arch = "wasm32"))]
 #[no_mangle]
