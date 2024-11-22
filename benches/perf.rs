@@ -1,12 +1,9 @@
 #![feature(test)]
 
 extern crate test;
-extern crate parinfer_rust;
-
-#[macro_use]
-extern crate serde_json;
 
 use std::ffi::CString;
+use serde_json::json;
 use test::Bencher;
 
 const LONG_MAP_WITH_STRINGS : &str = include_str!("perf/long_map_with_strings");

@@ -1,15 +1,3 @@
-extern crate getopts;
-
-extern crate serde;
-extern crate serde_json;
-
-#[macro_use]
-extern crate serde_derive;
-
-extern crate unicode_segmentation;
-extern crate unicode_width;
-
-
 mod changes;
 mod cli_options;
 mod kakoune;

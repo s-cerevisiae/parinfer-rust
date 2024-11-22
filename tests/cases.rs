@@ -1,13 +1,8 @@
-extern crate parinfer_rust;
-extern crate serde;
-#[macro_use]
-extern crate serde_json;
-
-#[macro_use]
-extern crate serde_derive;
-
 #[cfg(not(target_arch = "wasm32"))]
 use std::ffi::{CStr, CString};
+
+use serde_derive::{Deserialize, Serialize};
+use serde_json::json;
 
 const INDENT_MODE_CASES: &'static str = include_str!("cases/indent-mode.json");
 const PAREN_MODE_CASES: &'static str = include_str!("cases/paren-mode.json");

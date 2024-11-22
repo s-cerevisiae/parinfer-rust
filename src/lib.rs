@@ -1,23 +1,8 @@
-extern crate serde;
-extern crate serde_json;
-
-#[macro_use]
-extern crate serde_derive;
-
-extern crate unicode_segmentation;
-extern crate unicode_width;
-
 mod parinfer;
 mod types;
 mod changes;
 
-#[macro_use]
-#[cfg(feature = "emacs")]
-extern crate emacs;
 // Native-specific stuff
-
-#[cfg(not(target_arch = "wasm32"))]
-extern crate libc;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod c_wrapper;
@@ -39,10 +24,6 @@ pub use emacs_wrapper::init;
 // WebAssembly-specific stuff
 
 #[cfg(target_arch = "wasm32")]
-#[macro_use]
-extern crate stdweb;
-
-#[cfg(target_arch = "wasm32")]
 use stdweb::js_export;
 
 mod common_wrapper;
@@ -55,6 +36,3 @@ mod wasm_wrapper;
 pub fn run_parinfer(input: String) -> String {
     wasm_wrapper::run_parinfer(input)
 }
-
-#[cfg(windows)]
-extern crate winapi;
