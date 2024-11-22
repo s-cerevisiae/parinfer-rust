@@ -1,6 +1,6 @@
 use super::parinfer::rc_process;
 use emacs::{Env, IntoLisp, Result, Value};
-use types::{Change, Error, Options, Request, SharedRequest, WrappedAnswer};
+use crate::types::{Change, Error, Options, Request, SharedRequest, WrappedAnswer};
 
 use std::{fs::OpenOptions,
           io::Write,

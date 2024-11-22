@@ -1,6 +1,7 @@
 [package]
 name = "parinfer_rust"
 version = "0.4.3"
+edition = "2021"
 authors = ["Jason Felice <jason.m.felice@gmail.com>"]
 
 [lib]
